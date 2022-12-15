@@ -60,11 +60,11 @@ vagrant up
 
 1. Master
 Проверяем что при выполнении роли create_test_db создалась база данных acme  
-![Image 1](https://github.com/ballrak86/26-homeWork/master/screenshots/postgresql-master.jpg)
+![Image 1](https://github.com/ballrak86/26-homeWork/blob/main/screenshots/postgresql-master.jpg)
 
 2. Slave
 Проверяем что база данных acme появилась на slave  
-![Image 1](https://github.com/ballrak86/26-homeWork/master/screenshots/postgresql-slave.jpg)
+![Image 2](https://github.com/ballrak86/26-homeWork/blob/main/screenshots/postgresql-slave.jpg)
 
 2. Backup
 ```
