@@ -1,0 +1,70 @@
+---
+- name: install epel repo
+  yum:
+    name: epel-release
+    state: present
+
+- name: Disable SELinux
+  selinux:
+    state: disabled
+
+- name: install postgresql repo
+  yum:
+    name: https://download.postgresql.org/pub/repos/yum/reporpms/EL-7-x86_64/pgdg-redhat-repo-latest.noarch.rpm
+    state: present
+    validate_certs: no
+
+- name: install postgresql server and barman
+  yum:
+    name: 
+      - postgresql12-server
+      - barman
+    state: present
+
+- name: init db
+  become_user: postgres
+  shell:
+    cmd: /usr/pgsql-12/bin/pg_ctl initdb -D /var/lib/pgsql/12/data
+    
+- name: create ssh dir
+  file:
+    path: "/var/lib/pgsql/.ssh"
+    state: directory
+    owner: postgres
+    group: postgres
+
+- name: copy ssh keys
+  copy: src=files/ssh/{{ item }} dest=/var/lib/pgsql/.ssh/ mode=0600 owner=postgres group=postgres
+  with_items:
+    - id_rsa
+    - id_rsa.pub
+    - config
+
+- name: copy postgresql config files
+  template:
+    src: '{{ item }}'
+    dest: /var/lib/pgsql/12/data
+    mode: 0600
+    owner: postgres
+    group: postgres
+  with_fileglob: files/*
+  notify: restart postgresql
+
+- name: Force all notified handlers to run at this point
+  meta: flush_handlers
+  
+#- name: create slot
+#  become_user: postgres
+#  shell: psql postgres -c "SELECT pg_create_physical_replication_slot('standby_slot')"
+
+- name: create streaming user
+  become_user: postgres
+  shell: psql postgres -c "CREATE USER {{ streaming_username }} WITH REPLICATION PASSWORD '{{ streaming_password }}'"
+
+- name: create barman user
+  become_user: postgres
+  shell: psql postgres -c "CREATE USER {{ barman_username }} WITH SUPERUSER PASSWORD '{{ barman_password }}'"
+
+- name: create barman streaming user
+  become_user: postgres
+  shell: psql postgres -c "CREATE USER {{ barman_streaming_username }} WITH REPLICATION PASSWORD '{{ barman_streaming_password }}'"

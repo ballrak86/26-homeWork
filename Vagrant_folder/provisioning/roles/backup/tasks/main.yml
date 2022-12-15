@@ -1,0 +1,59 @@
+---
+- name: install epel repo
+  yum:
+    name: epel-release
+    state: present
+
+- name: Disable SELinux
+  selinux:
+    state: disabled
+
+- name: install postgresql repo
+  yum:
+    name: https://download.postgresql.org/pub/repos/yum/reporpms/EL-7-x86_64/pgdg-redhat-repo-latest.noarch.rpm
+    state: present
+    validate_certs: no
+
+- name: install postgresql client and barman
+  yum:
+    name:
+      - postgresql12
+      - barman
+    state: present
+
+- name: copy auth for barman
+  copy:
+    src: pgpass
+    dest: /var/lib/barman/.pgpass
+    mode: 0600
+    owner: barman
+    group: barman
+
+- name: copy barman configuration
+  copy:
+    src: barman.conf
+    dest: /etc/barman.conf
+    mode: 0644
+
+- name: copy backup configuration
+  copy:
+    src: master.conf
+    dest: /etc/barman.d/master.conf
+    mode: 0644
+    
+- name: create ssh dir for barman
+  file:
+    path: "/var/lib/barman/.ssh"
+    state: directory
+    owner: barman
+    group: barman
+
+- name: copy ssh keys
+  copy: src=files/ssh/{{ item }} dest=/var/lib/barman/.ssh/ mode=0600 owner=barman group=barman
+  with_items:
+    - id_rsa
+    - id_rsa.pub
+    - authorized_keys    
+    
+- name: create replication slot
+  shell: barman receive-wal --create-slot master

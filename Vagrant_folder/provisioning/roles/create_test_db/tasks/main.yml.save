@@ -1,0 +1,11 @@
+---
+- name: Create a new database with name "acme"
+  postgresql_db:
+    name: acme
+
+- name: Create tbl2 in the acme database with the DDL like tbl1 with 
+testuser as an owner
+  postgresql_table:
+    db: acme
+    name: tbl2
+    like: tbl1

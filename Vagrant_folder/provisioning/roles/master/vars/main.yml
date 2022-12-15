@@ -1,0 +1,7 @@
+---
+barman_username: 'barman'
+barman_password: 'password1'
+barman_streaming_username: 'barman_streaming_user'
+barman_streaming_password: 'password2'
+streaming_username: 'replicator'
+streaming_password: 'password3'

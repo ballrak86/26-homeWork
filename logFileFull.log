@@ -1,0 +1,603 @@
+root@otssTestServer:/home/lx/git/postgersql# vagrant destroy -f; vagrant up
+==> backup: VM not created. Moving on...
+==> slave: VM not created. Moving on...
+==> master: Forcing shutdown of VM...
+==> master: Destroying VM and associated drives...
+Bringing machine 'master' up with 'virtualbox' provider...
+Bringing machine 'slave' up with 'virtualbox' provider...
+Bringing machine 'backup' up with 'virtualbox' provider...
+==> master: Importing base box 'centos/7'...
+==> master: Matching MAC address for NAT networking...
+==> master: Checking if box 'centos/7' version '2004.01' is up to date...
+==> master: Setting the name of the VM: postgersql_master_1671091733007_29489
+==> master: Fixed port collision for 22 => 2222. Now on port 2200.
+==> master: Clearing any previously set network interfaces...
+==> master: Preparing network interfaces based on configuration...
+    master: Adapter 1: nat
+    master: Adapter 2: intnet
+==> master: Forwarding ports...
+    master: 22 (guest) => 2200 (host) (adapter 1)
+==> master: Running 'pre-boot' VM customizations...
+==> master: Booting VM...
+==> master: Waiting for machine to boot. This may take a few minutes...
+    master: SSH address: 127.0.0.1:2200
+    master: SSH username: vagrant
+    master: SSH auth method: private key
+    master:
+    master: Vagrant insecure key detected. Vagrant will automatically replace
+    master: this with a newly generated keypair for better security.
+    master:
+    master: Inserting generated public key within guest...
+    master: Removing insecure key from the guest if it's present...
+    master: Key inserted! Disconnecting and reconnecting using new SSH key...
+==> master: Machine booted and ready!
+==> master: Checking for guest additions in VM...
+    master: No guest additions were detected on the base box for this VM! Guest
+    master: additions are required for forwarded ports, shared folders, host only
+    master: networking, and more. If SSH fails on this machine, please install
+    master: the guest additions and repackage the box to continue.
+    master:
+    master: This is not an error message; everything may continue to work properly,
+    master: in which case you may ignore this message.
+==> master: Setting hostname...
+==> master: Configuring and enabling network interfaces...
+==> master: Rsyncing folder: /home/lx/git/postgersql/ => /vagrant
+==> master: Running provisioner: ansible...
+Vagrant gathered an unknown Ansible version:
+
+ansible [core 2.11.7]
+  config file = None
+  configured module search path = ['/root/.ansible/plugins/modules', '/usr/share/ansible/plugins/modules']
+  ansible python module location = /usr/local/lib/python3.6/dist-packages/ansible
+  ansible collection location = /root/.ansible/collections:/usr/share/ansible/collections
+  executable location = /usr/local/bin/ansible
+  python version = 3.6.9 (default, Nov 25 2022, 14:10:45) [GCC 8.4.0]
+  jinja version = 3.0.3
+  libyaml = True
+
+and falls back on the compatibility mode '1.8'.
+
+Alternatively, the compatibility mode can be specified in your Vagrantfile:
+https://www.vagrantup.com/docs/provisioning/ansible_common.html#compatibility_mode
+
+    master: Running ansible-playbook...
+[DEPRECATION WARNING]: Ansible will require Python 3.8 or newer on the
+controller starting with Ansible 2.12. Current version: 3.6.9 (default, Nov 25
+2022, 14:10:45) [GCC 8.4.0]. This feature will be removed from ansible-core in
+version 2.12. Deprecation warnings can be disabled by setting
+deprecation_warnings=False in ansible.cfg.
+
+PLAY [all] *********************************************************************
+
+TASK [Add records to /etc/hosts] ***********************************************
+changed: [master]
+
+PLAY [master] ******************************************************************
+
+TASK [Gathering Facts] *********************************************************
+ok: [master]
+
+TASK [master : install epel repo] **********************************************
+changed: [master]
+
+TASK [master : Disable SELinux] ************************************************
+[WARNING]: SELinux state temporarily changed from 'enforcing' to 'permissive'.
+State change will take effect next reboot.
+changed: [master]
+
+TASK [master : install postgresql repo] ****************************************
+changed: [master]
+
+TASK [master : install postgresql server and barman] ***************************
+changed: [master]
+
+TASK [master : init db] ********************************************************
+[WARNING]: Module remote_tmp /var/lib/pgsql/.ansible/tmp did not exist and was
+created with a mode of 0700, this may cause issues when running as another
+user. To avoid this, create the remote_tmp dir with the correct permissions
+manually
+changed: [master]
+
+TASK [master : create ssh dir] *************************************************
+changed: [master]
+
+TASK [master : copy ssh keys] **************************************************
+changed: [master] => (item=id_rsa)
+changed: [master] => (item=id_rsa.pub)
+changed: [master] => (item=config)
+
+TASK [master : copy postgresql config files] ***********************************
+changed: [master] => (item=/home/lx/git/postgersql/provisioning/roles/master/files/pg_hba.conf)
+changed: [master] => (item=/home/lx/git/postgersql/provisioning/roles/master/files/postgresql.conf)
+
+TASK [master : Force all notified handlers to run at this point] ***************
+
+RUNNING HANDLER [master : restart postgresql] **********************************
+changed: [master]
+
+TASK [master : create streaming user] ******************************************
+changed: [master]
+
+TASK [master : create barman user] *********************************************
+changed: [master]
+
+TASK [master : create barman streaming user] ***********************************
+changed: [master]
+[WARNING]: Could not match supplied host pattern, ignoring: slave
+
+PLAY [slave] *******************************************************************
+skipping: no hosts matched
+
+PLAY [master] ******************************************************************
+
+TASK [Gathering Facts] *********************************************************
+ok: [master]
+
+TASK [create_test_db : Create a new database with name "acme"] *****************
+changed: [master]
+
+TASK [create_test_db : Create test_table with several columns] *****************
+changed: [master]
+[WARNING]: Could not match supplied host pattern, ignoring: backup
+
+PLAY [backup] ******************************************************************
+skipping: no hosts matched
+
+PLAY RECAP *********************************************************************
+master                     : ok=17   changed=15   unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
+
+==> slave: Importing base box 'centos/7'...
+==> slave: Matching MAC address for NAT networking...
+==> slave: Checking if box 'centos/7' version '2004.01' is up to date...
+==> slave: Setting the name of the VM: postgersql_slave_1671091878212_43438
+==> slave: Clearing any previously set network interfaces...
+==> slave: Preparing network interfaces based on configuration...
+    slave: Adapter 1: nat
+    slave: Adapter 2: intnet
+==> slave: Forwarding ports...
+    slave: 22 (guest) => 2222 (host) (adapter 1)
+==> slave: Running 'pre-boot' VM customizations...
+==> slave: Booting VM...
+==> slave: Waiting for machine to boot. This may take a few minutes...
+    slave: SSH address: 127.0.0.1:2222
+    slave: SSH username: vagrant
+    slave: SSH auth method: private key
+    slave:
+    slave: Vagrant insecure key detected. Vagrant will automatically replace
+    slave: this with a newly generated keypair for better security.
+    slave:
+    slave: Inserting generated public key within guest...
+    slave: Removing insecure key from the guest if it's present...
+    slave: Key inserted! Disconnecting and reconnecting using new SSH key...
+==> slave: Machine booted and ready!
+==> slave: Checking for guest additions in VM...
+    slave: No guest additions were detected on the base box for this VM! Guest
+    slave: additions are required for forwarded ports, shared folders, host only
+    slave: networking, and more. If SSH fails on this machine, please install
+    slave: the guest additions and repackage the box to continue.
+    slave:
+    slave: This is not an error message; everything may continue to work properly,
+    slave: in which case you may ignore this message.
+==> slave: Setting hostname...
+==> slave: Configuring and enabling network interfaces...
+==> slave: Rsyncing folder: /home/lx/git/postgersql/ => /vagrant
+==> slave: Running provisioner: ansible...
+Vagrant gathered an unknown Ansible version:
+
+ansible [core 2.11.7]
+  config file = None
+  configured module search path = ['/root/.ansible/plugins/modules', '/usr/share/ansible/plugins/modules']
+  ansible python module location = /usr/local/lib/python3.6/dist-packages/ansible
+  ansible collection location = /root/.ansible/collections:/usr/share/ansible/collections
+  executable location = /usr/local/bin/ansible
+  python version = 3.6.9 (default, Nov 25 2022, 14:10:45) [GCC 8.4.0]
+  jinja version = 3.0.3
+  libyaml = True
+
+and falls back on the compatibility mode '1.8'.
+
+Alternatively, the compatibility mode can be specified in your Vagrantfile:
+https://www.vagrantup.com/docs/provisioning/ansible_common.html#compatibility_mode
+
+    slave: Running ansible-playbook...
+[DEPRECATION WARNING]: Ansible will require Python 3.8 or newer on the
+controller starting with Ansible 2.12. Current version: 3.6.9 (default, Nov 25
+2022, 14:10:45) [GCC 8.4.0]. This feature will be removed from ansible-core in
+version 2.12. Deprecation warnings can be disabled by setting
+deprecation_warnings=False in ansible.cfg.
+
+PLAY [all] *********************************************************************
+
+TASK [Add records to /etc/hosts] ***********************************************
+changed: [slave]
+
+PLAY [master] ******************************************************************
+skipping: no hosts matched
+
+PLAY [slave] *******************************************************************
+
+TASK [Gathering Facts] *********************************************************
+ok: [slave]
+
+TASK [slave : install epel repo] ***********************************************
+changed: [slave]
+
+TASK [slave : Disable SELinux] *************************************************
+changed: [slave]
+[WARNING]: SELinux state temporarily changed from 'enforcing' to 'permissive'.
+State change will take effect next reboot.
+
+TASK [slave : install postgresql repo] *****************************************
+changed: [slave]
+
+TASK [slave : install postgresql server and barman] ****************************
+changed: [slave]
+
+TASK [slave : init db] *********************************************************
+[WARNING]: Module remote_tmp /var/lib/pgsql/.ansible/tmp did not exist and was
+created with a mode of 0700, this may cause issues when running as another
+user. To avoid this, create the remote_tmp dir with the correct permissions
+manually
+changed: [slave]
+
+TASK [slave : remove pgdata] ***************************************************
+changed: [slave]
+
+TASK [slave : create new pgdata] ***********************************************
+changed: [slave]
+
+TASK [slave : copy base from master to slave] **********************************
+changed: [slave]
+
+RUNNING HANDLER [slave : restart postgresql] ***********************************
+changed: [slave]
+
+PLAY [master] ******************************************************************
+skipping: no hosts matched
+[WARNING]: Could not match supplied host pattern, ignoring: backup
+
+PLAY [backup] ******************************************************************
+skipping: no hosts matched
+
+PLAY RECAP *********************************************************************
+slave                      : ok=11   changed=10   unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
+
+==> backup: Importing base box 'centos/7'...
+==> backup: Matching MAC address for NAT networking...
+==> backup: Checking if box 'centos/7' version '2004.01' is up to date...
+==> backup: Setting the name of the VM: postgersql_backup_1671092014585_82532
+==> backup: Fixed port collision for 22 => 2222. Now on port 2201.
+==> backup: Clearing any previously set network interfaces...
+==> backup: Preparing network interfaces based on configuration...
+    backup: Adapter 1: nat
+    backup: Adapter 2: intnet
+==> backup: Forwarding ports...
+    backup: 22 (guest) => 2201 (host) (adapter 1)
+==> backup: Running 'pre-boot' VM customizations...
+==> backup: Booting VM...
+==> backup: Waiting for machine to boot. This may take a few minutes...
+    backup: SSH address: 127.0.0.1:2201
+    backup: SSH username: vagrant
+    backup: SSH auth method: private key
+    backup:
+    backup: Vagrant insecure key detected. Vagrant will automatically replace
+    backup: this with a newly generated keypair for better security.
+    backup:
+    backup: Inserting generated public key within guest...
+    backup: Removing insecure key from the guest if it's present...
+    backup: Key inserted! Disconnecting and reconnecting using new SSH key...
+==> backup: Machine booted and ready!
+==> backup: Checking for guest additions in VM...
+    backup: No guest additions were detected on the base box for this VM! Guest
+    backup: additions are required for forwarded ports, shared folders, host only
+    backup: networking, and more. If SSH fails on this machine, please install
+    backup: the guest additions and repackage the box to continue.
+    backup:
+    backup: This is not an error message; everything may continue to work properly,
+    backup: in which case you may ignore this message.
+==> backup: Setting hostname...
+==> backup: Configuring and enabling network interfaces...
+==> backup: Rsyncing folder: /home/lx/git/postgersql/ => /vagrant
+==> backup: Running provisioner: ansible...
+Vagrant gathered an unknown Ansible version:
+
+ansible [core 2.11.7]
+  config file = None
+  configured module search path = ['/root/.ansible/plugins/modules', '/usr/share/ansible/plugins/modules']
+  ansible python module location = /usr/local/lib/python3.6/dist-packages/ansible
+  ansible collection location = /root/.ansible/collections:/usr/share/ansible/collections
+  executable location = /usr/local/bin/ansible
+  python version = 3.6.9 (default, Nov 25 2022, 14:10:45) [GCC 8.4.0]
+  jinja version = 3.0.3
+  libyaml = True
+
+and falls back on the compatibility mode '1.8'.
+
+Alternatively, the compatibility mode can be specified in your Vagrantfile:
+https://www.vagrantup.com/docs/provisioning/ansible_common.html#compatibility_mode
+
+    backup: Running ansible-playbook...
+[DEPRECATION WARNING]: Ansible will require Python 3.8 or newer on the
+controller starting with Ansible 2.12. Current version: 3.6.9 (default, Nov 25
+2022, 14:10:45) [GCC 8.4.0]. This feature will be removed from ansible-core in
+version 2.12. Deprecation warnings can be disabled by setting
+deprecation_warnings=False in ansible.cfg.
+
+PLAY [all] *********************************************************************
+
+TASK [Add records to /etc/hosts] ***********************************************
+changed: [backup]
+
+PLAY [master] ******************************************************************
+skipping: no hosts matched
+
+PLAY [slave] *******************************************************************
+skipping: no hosts matched
+
+PLAY [master] ******************************************************************
+skipping: no hosts matched
+
+PLAY [backup] ******************************************************************
+
+TASK [Gathering Facts] *********************************************************
+ok: [backup]
+
+TASK [backup : install epel repo] **********************************************
+changed: [backup]
+
+TASK [backup : Disable SELinux] ************************************************
+[WARNING]: SELinux state temporarily changed from 'enforcing' to 'permissive'.
+State change will take effect next reboot.
+changed: [backup]
+
+TASK [backup : install postgresql repo] ****************************************
+changed: [backup]
+
+TASK [backup : install postgresql client and barman] ***************************
+changed: [backup]
+
+TASK [backup : copy auth for barman] *******************************************
+changed: [backup]
+
+TASK [backup : copy barman configuration] **************************************
+changed: [backup]
+
+TASK [backup : copy backup configuration] **************************************
+changed: [backup]
+
+TASK [backup : create ssh dir for barman] **************************************
+changed: [backup]
+
+TASK [backup : copy ssh keys] **************************************************
+changed: [backup] => (item=id_rsa)
+changed: [backup] => (item=id_rsa.pub)
+changed: [backup] => (item=authorized_keys)
+
+TASK [backup : create replication slot] ****************************************
+changed: [backup]
+
+PLAY RECAP *********************************************************************
+backup                     : ok=12   changed=11   unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
+
+root@otssTestServer:/home/lx/git/postgersql# vagrant ssh master
+Last login: Thu Dec 15 08:11:08 2022 from 10.0.2.2
+[vagrant@master ~]$ sudo -i
+[root@master ~]# su - postgres
+-bash-4.2$ psql
+psql (12.13)
+Type "help" for help.
+
+postgres=# \l
+                             List of databases
+   Name    |  Owner   | Encoding  | Collate | Ctype |   Access privileges
+-----------+----------+-----------+---------+-------+-----------------------
+ acme      | postgres | SQL_ASCII | C       | C     |
+ postgres  | postgres | SQL_ASCII | C       | C     |
+ template0 | postgres | SQL_ASCII | C       | C     | =c/postgres          +
+           |          |           |         |       | postgres=CTc/postgres
+ template1 | postgres | SQL_ASCII | C       | C     | =c/postgres          +
+           |          |           |         |       | postgres=CTc/postgres
+(4 rows)
+
+postgres=# logout
+postgres-# exit;
+Use \q to quit.
+ERROR:  syntax error at or near "logout"
+LINE 1: logout
+        ^
+postgres=# exit;
+-bash-4.2$ logout
+[root@master ~]# logout
+[vagrant@master ~]$ logout
+Connection to 127.0.0.1 closed.
+root@otssTestServer:/home/lx/git/postgersql# vagrant ssh slave
+Last login: Thu Dec 15 08:13:22 2022 from 10.0.2.2
+[vagrant@slave ~]$ sudo su postgres
+bash-4.2$ \l
+bash: l: command not found
+bash-4.2$ psql
+could not change directory to "/home/vagrant": Permission denied
+psql (12.13)
+Type "help" for help.
+
+postgres=# \l
+                             List of databases
+   Name    |  Owner   | Encoding  | Collate | Ctype |   Access privileges
+-----------+----------+-----------+---------+-------+-----------------------
+ acme      | postgres | SQL_ASCII | C       | C     |
+ postgres  | postgres | SQL_ASCII | C       | C     |
+ template0 | postgres | SQL_ASCII | C       | C     | =c/postgres          +
+           |          |           |         |       | postgres=CTc/postgres
+ template1 | postgres | SQL_ASCII | C       | C     | =c/postgres          +
+           |          |           |         |       | postgres=CTc/postgres
+(4 rows)
+
+postgres=# exit;
+bash-4.2$ logout
+bash: logout: not login shell: use `exit'
+bash-4.2$ exit
+exit
+[vagrant@slave ~]$ logout
+Connection to 127.0.0.1 closed.
+root@otssTestServer:/home/lx/git/postgersql# vagrant ssh backup
+Last login: Thu Dec 15 08:15:35 2022 from 10.0.2.2
+[vagrant@backup ~]$ sudo -i
+[root@backup ~]# barman switch-wal --force --archive master
+The WAL file 000000010000000000000003 has been closed on server 'master'
+Waiting for the WAL file 000000010000000000000003 from server 'master' (max: 30 seconds)
+Processing xlog segments from streaming for master
+        000000010000000000000003
+[root@backup ~]# barman check master
+Server master:
+        PostgreSQL: OK
+        superuser or standard user with backup privileges: OK
+        PostgreSQL streaming: OK
+        wal_level: OK
+        replication slot: OK
+        directories: OK
+        retention policy settings: OK
+        backup maximum age: OK (no last_backup_maximum_age provided)
+        backup minimum size: OK (0 B)
+        wal maximum age: OK (no last_wal_maximum_age provided)
+        wal size: OK (0 B)
+        compression settings: OK
+        failed backups: OK (there are 0 failed backups)
+        minimum redundancy requirements: OK (have 0 backups, expected at least 0)
+        pg_basebackup: OK
+        pg_basebackup compatible: OK
+        pg_basebackup supports tablespaces mapping: OK
+        systemid coherence: OK (no system Id stored on disk)
+        pg_receivexlog: OK
+        pg_receivexlog compatible: OK
+        receive-wal running: OK
+        archive_mode: OK
+        archive_command: OK
+        archiver errors: OK
+[root@backup ~]# barman backup master --wait
+Starting backup using postgres method for server master in /var/lib/barman/master/base/20221215T082738
+Backup start at LSN: 0/4000060 (000000010000000000000004, 00000060)
+Starting backup copy via pg_basebackup for 20221215T082738
+Copy done (time: 9 seconds)
+Finalising the backup.
+This is the first backup for server master
+WAL segments preceding the current backup have been found:
+        000000010000000000000003 from server master has been removed
+Backup size: 31.1 MiB
+Backup end at LSN: 0/6000060 (000000010000000000000006, 00000060)
+Backup completed (start time: 2022-12-15 08:27:38.599174, elapsed time: 10 seconds)
+Waiting for the WAL file 000000010000000000000006 from server 'master'
+Processing xlog segments from streaming for master
+        000000010000000000000004
+        000000010000000000000005
+        000000010000000000000006
+Processing xlog segments from file archival for master
+        000000010000000000000001
+        000000010000000000000002
+        000000010000000000000002.00000028.backup
+        000000010000000000000003
+        000000010000000000000004
+        000000010000000000000005
+        000000010000000000000005.00000028.backup
+        000000010000000000000006
+[root@backup ~]# barman status master
+Server master:
+        Description: PostgreSQL Backup
+        Active: True
+        Disabled: False
+        PostgreSQL version: 12.13
+        Cluster state: in production
+        pgespresso extension: Not available
+        Current data size: 31.3 MiB
+        PostgreSQL Data directory: /var/lib/pgsql/12/data
+        Current WAL segment: 000000010000000000000007
+        PostgreSQL 'archive_command' setting: rsync -a %p barman@backup:/var/lib/barman/master/incoming/%f
+        Last archived WAL: 000000010000000000000006, at Thu Dec 15 08:27:49 2022
+        Failures of WAL archiver: 36 (000000010000000000000001 at Thu Dec 15 08:27:19 2022)
+        Server WAL archiving rate: 28.28/hour
+        Passive node: False
+        Retention policies: not enforced
+        No. of available backups: 1
+        First available backup: 20221215T082738
+        Last available backup: 20221215T082738
+        Minimum redundancy requirements: satisfied (1/0)
+[root@backup ~]# barman status master
+Server master:
+        Description: PostgreSQL Backup
+        Active: True
+        Disabled: False
+        PostgreSQL version: 12.13
+        Cluster state: in production
+        pgespresso extension: Not available
+        Current data size: 31.3 MiB
+        PostgreSQL Data directory: /var/lib/pgsql/12/data
+        Current WAL segment: 000000010000000000000007
+        PostgreSQL 'archive_command' setting: rsync -a %p barman@backup:/var/lib/barman/master/incoming/%f
+        Last archived WAL: 000000010000000000000006, at Thu Dec 15 08:27:49 2022
+        Failures of WAL archiver: 36 (000000010000000000000001 at Thu Dec 15 08:27:19 2022)
+        Server WAL archiving rate: 27.74/hour
+        Passive node: False
+        Retention policies: not enforced
+        No. of available backups: 1
+        First available backup: 20221215T082738
+        Last available backup: 20221215T082738
+        Minimum redundancy requirements: satisfied (1/0)
+[root@backup ~]# barman check master
+Server master:
+        PostgreSQL: OK
+        superuser or standard user with backup privileges: OK
+        PostgreSQL streaming: OK
+        wal_level: OK
+        replication slot: OK
+        directories: OK
+        retention policy settings: OK
+        backup maximum age: OK (no last_backup_maximum_age provided)
+        backup minimum size: OK (31.1 MiB)
+        wal maximum age: OK (no last_wal_maximum_age provided)
+        wal size: OK (0 B)
+        compression settings: OK
+        failed backups: OK (there are 0 failed backups)
+        minimum redundancy requirements: OK (have 1 backups, expected at least 0)
+        pg_basebackup: OK
+        pg_basebackup compatible: OK
+        pg_basebackup supports tablespaces mapping: OK
+        systemid coherence: OK
+        pg_receivexlog: OK
+        pg_receivexlog compatible: OK
+        receive-wal running: OK
+        archive_mode: OK
+        archive_command: OK
+        continuous archiving: OK
+        archiver errors: OK
+[root@backup ~]# barman replication-status master
+Status of streaming clients for server 'master':
+  Current LSN on master: 0/70000C8
+  Number of streaming clients: 2
+
+  1. Async standby
+     Application name: walreceiver
+     Sync stage      : 5/5 Hot standby (max)
+     Communication   : TCP/IP
+     IP Address      : 192.168.1.20 / Port: 34622 / Host: -
+     User name       : replicator
+     Current state   : streaming (async)
+     Replication slot: pgstandby1
+     WAL sender PID  : 5229
+     Started at      : 2022-12-15 08:13:23.405714+00:00
+     Sent LSN   : 0/70000C8 (diff: 0 B)
+     Write LSN  : 0/70000C8 (diff: 0 B)
+     Flush LSN  : 0/70000C8 (diff: 0 B)
+     Replay LSN : 0/70000C8 (diff: 0 B)
+
+  2. Async WAL streamer
+     Application name: barman_receive_wal
+     Sync stage      : 3/3 Remote write
+     Communication   : TCP/IP
+     IP Address      : 192.168.1.30 / Port: 37712 / Host: -
+     User name       : barman_streaming_user
+     Current state   : streaming (async)
+     Replication slot: barman
+     WAL sender PID  : 5275
+     Started at      : 2022-12-15 08:16:02.904880+00:00
+     Sent LSN   : 0/70000C8 (diff: 0 B)
+     Write LSN  : 0/70000C8 (diff: 0 B)
+     Flush LSN  : 0/7000000 (diff: -200 B)

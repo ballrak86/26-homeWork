@@ -1,0 +1,19 @@
+---
+#- name: Make sure psycopg2 is installed
+#  pip:
+#    name: psycopg2
+#    state: present
+
+- name: Create a new database with name "acme"
+  become_user: postgres
+  postgresql_db:
+    name: acme
+
+- name: Create test_table with several columns
+  postgresql_table:
+    db: acme
+    name: test_table
+    columns:
+    - id bigserial primary key
+    - num bigint
+    - stories text
